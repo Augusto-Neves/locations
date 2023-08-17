@@ -12,7 +12,6 @@ export function IconButton({ color, icon, onPress, size }) {
 const styles = StyleSheet.create({
   button: {
     padding: 8,
-    margin: 4,
     justifyContent: 'center',
     alignContent: 'center',
   },
