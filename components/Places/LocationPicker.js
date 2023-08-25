@@ -8,11 +8,13 @@ import {
 } from 'expo-location';
 import { getMapPreview } from '../../utils/location';
 import { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 export function LocationPicker() {
   const [pickedLocation, setPickedLocation] = useState();
   const [locationPermissionInformation, requestPermission] =
     useForegroundPermissions();
+  const navigation = useNavigation();
 
   async function verifyPermissions() {
     if (
@@ -52,7 +54,9 @@ export function LocationPicker() {
     });
   }
 
-  function pickOnTheMapHandler() {}
+  function pickOnTheMapHandler() {
+    navigation.navigate('Map');
+  }
 
   let locationPreview = <Text>No location picked yet.</Text>;
 
@@ -91,10 +95,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.primary100,
     borderRadius: 4,
+    overflow: 'hidden',
   },
   mapPreviewImage: {
     width: '100%',
     height: '100%',
+    borderRadius: 4,
   },
   actions: {
     flexDirection: 'row',
