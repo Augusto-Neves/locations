@@ -1,4 +1,5 @@
-import { StyleSheet, View, Alert, Image, Text } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { StyleSheet, View, Alert, Text } from 'react-native';
 import { OutlinedButton } from '../UI/OutlinedButton';
 import { Colors } from '../../constants/colors';
 import {
@@ -6,15 +7,27 @@ import {
   useForegroundPermissions,
   PermissionStatus,
 } from 'expo-location';
-import { getMapPreview } from '../../utils/location';
-import { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useEffect, useState, useMemo } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-export function LocationPicker() {
+export function LocationPicker({ onPickLocation }) {
   const [pickedLocation, setPickedLocation] = useState();
   const [locationPermissionInformation, requestPermission] =
     useForegroundPermissions();
   const navigation = useNavigation();
+  const route = useRoute();
+
+  useEffect(() => {
+    if (route.params) {
+      const mapPickedLocation =  {
+        lat: route.params.pickedLat,
+        lng: route.params.pickedLng,
+      }
+
+      setPickedLocation(mapPickedLocation);
+      onPickLocation(mapPickedLocation);
+    }
+  }, [route]);
 
   async function verifyPermissions() {
     if (
@@ -48,26 +61,54 @@ export function LocationPicker() {
     if (!hasPermission) return;
 
     const userLocation = await getCurrentPositionAsync();
-    setPickedLocation({
+
+    const location = userLocation && {
       lat: userLocation.coords.latitude,
       lng: userLocation.coords.longitude,
-    });
+    };
+
+    setPickedLocation(location);
+    onPickLocation(location);
   }
 
-  function pickOnTheMapHandler() {
-    navigation.navigate('Map');
+  async function pickOnTheMapHandler() {
+    const initialRegion = await getCurrentPositionAsync();
+
+    navigation.navigate('Map', {
+      lat: initialRegion.coords.latitude,
+      lng: initialRegion.coords.longitude,
+    });
   }
 
   let locationPreview = <Text>No location picked yet.</Text>;
 
+  const region = useMemo(
+    () => ({
+      latitude: pickedLocation?.lat,
+      longitude: pickedLocation?.lng,
+      latitudeDelta: 0.0022,
+      longitudeDelta: 0.0021,
+    }),
+    [pickedLocation, route]
+  );
+
   if (pickedLocation) {
     locationPreview = (
-      <Image
-        source={{
-          uri: getMapPreview(pickedLocation?.lat, pickedLocation?.lng),
-        }}
+      <MapView
+        region={region}
         style={styles.mapPreviewImage}
-      />
+        zoomEnabled={false}
+        rotateEnabled={false}
+        scrollEnabled={false}
+      >
+        <Marker
+          title="Your Location"
+          coordinate={{
+            latitude: pickedLocation?.lat,
+            longitude: pickedLocation?.lng,
+          }}
+        />
+      </MapView>
     );
   }
 
