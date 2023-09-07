@@ -9,6 +9,7 @@ import {
 } from 'expo-location';
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { getAddress } from '../../utils/location';
 
 export function LocationPicker({ onPickLocation }) {
   const [pickedLocation, setPickedLocation] = useState();
@@ -19,15 +20,27 @@ export function LocationPicker({ onPickLocation }) {
 
   useEffect(() => {
     if (route.params) {
-      const mapPickedLocation =  {
+      const mapPickedLocation = {
         lat: route.params.pickedLat,
         lng: route.params.pickedLng,
-      }
+      };
 
       setPickedLocation(mapPickedLocation);
-      onPickLocation(mapPickedLocation);
     }
   }, [route]);
+
+  useEffect(() => {
+    (async () => {
+      if (pickedLocation) {
+        const address = await getAddress(
+          pickedLocation?.lat,
+          pickedLocation?.lng
+        );
+
+        onPickLocation({ ...pickedLocation, address: address });
+      }
+    })();
+  }, [pickedLocation, onPickLocation]);
 
   async function verifyPermissions() {
     if (
