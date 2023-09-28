@@ -1,3 +1,4 @@
+import * as SplashScreen from 'expo-splash-screen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
@@ -8,14 +9,39 @@ import { IconButton } from './components/UI/IconButton';
 import { AllPlaces } from './screens/AllPlaces';
 import { AddPlace } from './screens/AddPlace';
 import { MapScreen } from './screens/Map';
+import { useEffect, useCallback, useState } from 'react';
+import { init } from './utils/database';
 
 const Stack = createStackNavigator();
 
 export default function App() {
+  const [isDbInitialized, setIsDbInitialized] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await SplashScreen.preventAutoHideAsync();
+        init();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsDbInitialized(true);
+      }
+    })();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (isDbInitialized) await SplashScreen.hideAsync();
+  }, [isDbInitialized]);
+
+  if (!isDbInitialized) {
+    return null;
+  }
+
   return (
     <>
       <StatusBar style="auto" />
-      <NavigationContainer>
+      <NavigationContainer onReady={onLayoutRootView}>
         <Stack.Navigator
           screenOptions={{
             headerStyle: {

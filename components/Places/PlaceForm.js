@@ -23,8 +23,8 @@ export function PlaceForm({ onCreatePlace }) {
     setPickedLocation(location);
   }, []);
 
-  function savePlaceHandler() {
-    const placeData = new Place(title, takenImage, );
+  function savePlaceHandler() {    
+    const placeData = new Place(title, takenImage, pickedLocation);    
     onCreatePlace(placeData);
   }
 
