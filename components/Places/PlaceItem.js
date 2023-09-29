@@ -4,7 +4,7 @@ import { Colors } from '../../constants/colors';
 export function PlaceItem({ place, onSelect }) {
   return (
     <TouchableOpacity
-      onPress={onSelect}
+      onPress={onSelect.bind(this, place.id)}
       activeOpacity={0.7}
       style={styles.item}
     >

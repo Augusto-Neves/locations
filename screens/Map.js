@@ -4,7 +4,7 @@ import { Alert, StyleSheet } from 'react-native';
 import { IconButton } from '../components/UI/IconButton';
 
 export function MapScreen({ navigation, route }) {
-  const [selectedLocation, setSelectedLocation] = useState();
+  const previousScreen = route.params.previousScreen;
   const region = {
     latitude: route.params.lat,
     longitude: route.params.lng,
@@ -12,7 +12,14 @@ export function MapScreen({ navigation, route }) {
     longitudeDelta: 0.0121,
   };
 
+  const [selectedLocation, setSelectedLocation] = useState({
+    lat: region.latitude,
+    lng: region.longitude,
+  });
+
   function selectLocationHandler(event) {
+    if (previousScreen) return;
+    
     const lat = event.nativeEvent.coordinate.latitude;
     const lng = event.nativeEvent.coordinate.longitude;
 
@@ -36,14 +43,15 @@ export function MapScreen({ navigation, route }) {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: ({ tintColor }) => (
-        <IconButton
-          color={tintColor}
-          icon="save"
-          size={24}
-          onPress={savePickedLocation}
-        />
-      ),
+      headerRight: ({ tintColor }) =>
+        !previousScreen && (
+          <IconButton
+            color={tintColor}
+            icon="save"
+            size={24}
+            onPress={savePickedLocation}
+          />
+        ),
     });
   }, [navigation, savePickedLocation]);
 

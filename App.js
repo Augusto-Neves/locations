@@ -11,6 +11,7 @@ import { AddPlace } from './screens/AddPlace';
 import { MapScreen } from './screens/Map';
 import { useEffect, useCallback, useState } from 'react';
 import { init } from './utils/database';
+import { PlaceDetails } from './screens/PlaceDetails';
 
 const Stack = createStackNavigator();
 
@@ -76,6 +77,11 @@ export default function App() {
             }}
           />
           <Stack.Screen name="Map" component={MapScreen} />
+          <Stack.Screen
+            name="PlaceDetails"
+            component={PlaceDetails}
+            options={{ title: 'Loading place...' }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </>
